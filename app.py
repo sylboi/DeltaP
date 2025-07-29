@@ -10,7 +10,8 @@ from black_scholes_calculator import BlackScholesCalculator
 st.set_page_config(
     page_title="Calculateur de Couverture de Prix - Black & Scholes",
     page_icon="📊",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"  # Garde la sidebar ouverte par défaut
 )
 
 # Titre et description
@@ -19,6 +20,21 @@ st.markdown("""
 Cet outil calcule le delta prix entre aujourd'hui et la date de livraison d'un contrat 
 en utilisant le modèle Black & Scholes pour déterminer la couverture de prix optimale.
 """)
+
+# CSS pour améliorer l'affichage sur mobile
+st.markdown("""
+<style>
+@media (max-width: 768px) {
+    .stSidebar {
+        min-width: 300px !important;
+    }
+    .main .block-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
 
 # Initialisation du calculateur
 calculator = BlackScholesCalculator()
@@ -96,6 +112,8 @@ num_simulations = st.sidebar.selectbox(
     help="Nombre de scénarios à simuler"
 )
 
+
+
 # Bouton de calcul
 if st.sidebar.button("🚀 Calculer la couverture", type="primary"):
     # Calcul de la couverture
@@ -111,7 +129,53 @@ if st.sidebar.button("🚀 Calculer la couverture", type="primary"):
     if 'error' in results:
         st.error(results['error'])
     else:
-        # Affichage des résultats principaux
+        # Mise en avant du Delta prix
+        st.markdown("---")
+        st.markdown("## 🎯 **RÉSULTAT PRINCIPAL**")
+        
+        # Delta prix - Design inspiré du logo CAPPANERA ENERGY
+        delta_percentage = (results['price_delta']/results['current_price']*100)
+        
+        # Couleurs inspirées du logo (dégradé violet)
+        if results['price_delta'] >= 0:
+            bg_gradient = "linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)"
+            text_color = "#ffffff"
+            icon = "📈"
+        else:
+            bg_gradient = "linear-gradient(135deg, #DC2626 0%, #EF4444 100%)"
+            text_color = "#ffffff"
+            icon = "📉"
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.markdown(f"""
+            <div style="
+                text-align: center; 
+                padding: 15px; 
+                background: {bg_gradient}; 
+                border-radius: 10px; 
+                color: {text_color}; 
+                margin: 10px 0;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                max-width: 300px;
+                margin-left: auto;
+                margin-right: auto;
+            ">
+                <div style="font-size: 1.5em; margin-bottom: 5px;">{icon}</div>
+                <h3 style="margin: 0; font-size: 1.1em; font-weight: 600; color: {text_color};">
+                    Delta Prix
+                </h3>
+                <h2 style="margin: 5px 0; font-size: 1.8em; font-weight: 700; color: {text_color};">
+                    €{results['price_delta']:.2f}
+                </h2>
+                <p style="margin: 0; font-size: 0.9em; font-weight: 500; opacity: 0.9;">
+                    {delta_percentage:+.1f}%
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Autres métriques en dessous
+        st.markdown("### 📊 Autres métriques")
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
@@ -130,17 +194,19 @@ if st.sidebar.button("🚀 Calculer la couverture", type="primary"):
         
         with col3:
             st.metric(
-                "Delta prix",
-                f"€{results['price_delta']:.2f}",
-                delta=f"{(results['price_delta']/results['current_price']*100):.1f}%"
-            )
-        
-        with col4:
-            st.metric(
                 "Milieu livraison",
                 f"{results['holding_period']*365:.0f} jours",
                 delta=None
             )
+        
+        with col4:
+            st.metric(
+                "Volatilité",
+                f"{volatility*100:.1f}%",
+                delta=None
+            )
+        
+
         
         # Détails des options
         st.subheader("📈 Détails des options de couverture")
@@ -309,70 +375,7 @@ if st.sidebar.button("🚀 Calculer la couverture", type="primary"):
             
             st.plotly_chart(fig_time, use_container_width=True)
         
-        # Recommandations pour couverture d'exposition volume
-        st.subheader("💡 Recommandations de couverture (Exposition volume)")
-        
-        # Sélection du type d'exposition volume
-        volume_exposure = st.selectbox(
-            "Type d'exposition volume",
-            options=["Surconsommation client (fournisseur vend)", 
-                    "Sous-consommation client (fournisseur achète)",
-                    "Rachat de production (fournisseur achète)",
-                    "Exposition mixte (tous cas possibles)"],
-            index=3,
-            help="Détermine l'exposition volume du fournisseur"
-        )
-        
-        if volume_exposure == "Surconsommation client (fournisseur vend)":
-            # Client surconsomme → fournisseur doit acheter plus d'énergie au marché
-            st.warning(f"""
-            **⚠️ Exposition haussière pour le fournisseur**
-            
-            **Situation :** Client surconsomme → Fournisseur doit acheter davantage d'énergie au marché 
-            pour satisfaire le client à son prix contractuel
-            
-            **Risque :** Si le prix monte au-dessus du prix de hedging (€{results['strike_price']:.2f}), 
-            le fournisseur doit acheter plus cher au marché pour honorer son contrat.
-            
-            **Recommandation :** Acheter des options call pour couvrir le risque de hausse des prix d'achat au marché.
-            """)
-        elif volume_exposure == "Sous-consommation client (fournisseur achète)":
-            # Client sous-consomme → fournisseur doit revendre l'excédent au marché
-            st.warning(f"""
-            **⚠️ Exposition baissière pour le fournisseur**
-            
-            **Situation :** Client sous-consomme → Fournisseur doit revendre l'excédent d'énergie au marché
-            
-            **Risque :** Si le prix baisse en-dessous du prix de hedging (€{results['strike_price']:.2f}), 
-            le fournisseur doit vendre moins cher au marché.
-            
-            **Recommandation :** Acheter des options put pour couvrir le risque de baisse des prix de vente au marché.
-            """)
-        elif volume_exposure == "Rachat de production (fournisseur achète)":
-            # Rachat de production → fournisseur doit revendre l'excédent au marché
-            st.warning(f"""
-            **⚠️ Exposition baissière pour le fournisseur**
-            
-            **Situation :** Rachat de production → Fournisseur doit revendre l'excédent d'énergie au marché
-            
-            **Risque :** Si le prix baisse en-dessous du prix de hedging (€{results['strike_price']:.2f}), 
-            le fournisseur doit vendre moins cher au marché.
-            
-            **Recommandation :** Acheter des options put pour couvrir le risque de baisse des prix de vente au marché.
-            """)
-        else:
-            # Exposition mixte - le fournisseur ne sait pas à l'avance
-            st.info(f"""
-            **🔄 Exposition mixte - Couverture bilatérale recommandée**
-            
-            Le fournisseur ne sait pas à l'avance le sens de déviation du client.
-            
-            **Stratégie recommandée :**
-            - **Options Call** : Protection contre hausse des prix (surconsommation)
-            - **Options Put** : Protection contre baisse des prix (sous-consommation/rachat)
-            
-            **Prix de hedging :** €{results['strike_price']:.2f} (vs €{current_price:.2f} actuel)
-            """)
+
         
         # Explication de l'exposition volume
         with st.expander("📚 Explication de l'exposition volume"):

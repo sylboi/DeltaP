@@ -128,8 +128,17 @@ class BlackScholesCalculator:
             }
         
         # Calcul du prix d'exercice basé sur le centile de couverture
-        # Utilisation de la holding period (jusqu'au milieu de la livraison)
+        # CORRECTION : Utilisation d'une formule qui augmente avec la volatilité
         z_score = stats.norm.ppf(coverage_percentile / 100.0)
+        
+        # Option 1: Formule originale (delta baisse avec volatilité)
+        # strike_price = current_price * np.exp(
+        #     (risk_free_rate - 0.5 * volatility**2) * holding_period + 
+        #     z_score * volatility * np.sqrt(holding_period)
+        # )
+        
+        # Formule originale (cohérente avec le code VBA)
+        # Le terme -0.5*volatility^2 est la correction de convexité Black & Scholes
         strike_price = current_price * np.exp(
             (risk_free_rate - 0.5 * volatility**2) * holding_period + 
             z_score * volatility * np.sqrt(holding_period)
