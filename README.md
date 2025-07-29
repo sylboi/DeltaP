@@ -2,174 +2,119 @@
 
 ## 📊 Description
 
-Cet outil calcule le delta prix entre aujourd'hui et la date de livraison d'un contrat en utilisant le modèle Black & Scholes pour déterminer la couverture de prix optimale.
+Application Streamlit pour calculer le delta prix entre aujourd'hui et la date de livraison d'un contrat en utilisant le modèle Black & Scholes pour déterminer la couverture de prix optimale.
 
-## 🎯 Objectif
+## 🚀 Fonctionnalités
 
-L'objectif est de connaître la couverture de prix à appliquer en fonction de :
-- La volatilité du sous-jacent
-- Le centile de couverture souhaité
-- Le prix actuel du sous-jacent
-- La date de livraison du contrat
+- **Calcul de couverture de prix** basé sur le modèle Black & Scholes
+- **Simulation de scénarios** avec analyse de distribution des prix futurs
+- **Analyse de volatilité** et calcul des centiles de risque
+- **Recommandations de couverture** selon le type d'exposition volume
+- **Visualisations interactives** avec Plotly
+- **Interface intuitive** avec paramètres configurables
 
-## 🚀 Installation
+## 🛠️ Installation locale
 
-1. **Cloner le projet** :
 ```bash
-git clone <repository-url>
+# Cloner le repository
+git clone <votre-repo-url>
 cd Pricing
-```
 
-2. **Installer les dépendances** :
-```bash
+# Installer les dépendances
 pip install -r requirements.txt
-```
 
-3. **Lancer l'application** :
-```bash
+# Lancer l'application
 streamlit run app.py
 ```
 
-## 📈 Fonctionnalités
+## 📋 Dépendances
 
-### Calculs principaux
-- **Delta prix** : Différence entre le prix de livraison et le prix actuel
-- **Prix d'exercice (strike)** : Calculé selon le centile de couverture
-- **Prix des options** : Call et Put selon Black & Scholes
-- **Deltas des options** : Sensibilité des options au prix du sous-jacent
+- `streamlit>=1.28.0` - Interface web
+- `numpy>=1.24.0` - Calculs numériques
+- `scipy>=1.11.0` - Fonctions statistiques
+- `pandas>=2.0.0` - Manipulation de données
+- `plotly>=5.15.0` - Visualisations interactives
+- `matplotlib>=3.7.0` - Graphiques
 
-### Visualisations
-- **Distribution des prix futurs** : Histogramme des scénarios
-- **Évolution temporelle** : Graphique avec bandes de confiance
-- **Statistiques** : Moyenne, écart-type, centiles
+## 🎯 Utilisation
 
-### Recommandations
-- **Couverture haussière** : Si le prix de livraison > prix actuel
-- **Couverture baissière** : Si le prix de livraison < prix actuel
+1. **Paramètres d'entrée** (sidebar) :
+   - Prix actuel du sous-jacent
+   - Dates de début et fin du contrat
+   - Volatilité annuelle
+   - Centile de couverture
+   - Taux d'intérêt sans risque
+   - Nombre de simulations
 
-## ⚙️ Paramètres d'entrée
-
-### Prix actuel du sous-jacent
-- **Type** : Nombre décimal
-- **Unité** : Euros (€)
-- **Plage** : 0.01 - 10,000 €
-
-### Date de livraison
-- **Type** : Date
-- **Contrainte** : Doit être dans le futur
-- **Format** : JJ/MM/AAAA
-
-### Volatilité annuelle
-- **Type** : Pourcentage
-- **Plage** : 1% - 100%
-- **Défaut** : 20%
-
-### Centile de couverture
-- **Type** : Pourcentage
-- **Plage** : 1% - 99%
-- **Défaut** : 95%
-- **Description** : Niveau de confiance pour la couverture
-
-### Taux d'intérêt sans risque
-- **Type** : Pourcentage
-- **Plage** : 0% - 10%
-- **Défaut** : 2%
-
-## 📊 Sorties
-
-### Métriques principales
-- **Prix actuel** : Prix du sous-jacent aujourd'hui
-- **Prix de livraison** : Prix calculé pour la date de livraison
-- **Delta prix** : Différence entre les deux prix
-- **Temps jusqu'à livraison** : Nombre de jours restants
-
-### Options de couverture
-- **Option Call** : Prix et delta de l'option d'achat
-- **Option Put** : Prix et delta de l'option de vente
-
-### Analyses statistiques
-- **Prix moyen futur** : Moyenne des scénarios simulés
-- **Écart-type** : Dispersion des prix futurs
-- **95ème centile** : Seuil de risque à 95%
-
-## 🔧 Modèle Black & Scholes
-
-### Formule du prix d'une option call :
-```
-C = S * N(d1) - K * e^(-rT) * N(d2)
-```
-
-### Formule du prix d'une option put :
-```
-P = K * e^(-rT) * N(-d2) - S * N(-d1)
-```
-
-Où :
-- `S` = Prix actuel du sous-jacent
-- `K` = Prix d'exercice
-- `T` = Temps jusqu'à l'échéance
-- `r` = Taux d'intérêt sans risque
-- `σ` = Volatilité
-- `N()` = Fonction de distribution normale
-
-## 💡 Utilisation
-
-1. **Saisir les paramètres** dans la barre latérale
-2. **Cliquer sur "Calculer la couverture"**
-3. **Analyser les résultats** :
-   - Métriques principales
-   - Détails des options
-   - Graphiques de distribution
+2. **Résultats affichés** :
+   - Prix de livraison (strike)
+   - Delta prix
+   - Détails des options (call/put)
+   - Distribution des prix futurs
    - Recommandations de couverture
 
-## 🎯 Cas d'usage
+## 🌐 Déploiement Streamlit Cloud
 
-### Exemple 1 : Couverture haussière
-- **Prix actuel** : 100 €
-- **Prix de livraison** : 110 €
-- **Recommandation** : Acheter des options call
+Cette application est configurée pour être déployée sur Streamlit Cloud.
 
-### Exemple 2 : Couverture baissière
-- **Prix actuel** : 100 €
-- **Prix de livraison** : 90 €
-- **Recommandation** : Acheter des options put
+### Étapes de déploiement :
+
+1. **Pousser le code sur GitHub** :
+   ```bash
+   git add .
+   git commit -m "Préparation pour déploiement Streamlit Cloud"
+   git push origin main
+   ```
+
+2. **Se connecter à Streamlit Cloud** :
+   - Aller sur [share.streamlit.io](https://share.streamlit.io)
+   - Se connecter avec votre compte GitHub
+   - Cliquer sur "New app"
+
+3. **Configurer l'application** :
+   - **Repository** : Sélectionner votre repository
+   - **Branch** : `main`
+   - **Main file path** : `app.py`
+   - **Python version** : 3.9 ou supérieur
+
+4. **Déployer** :
+   - Cliquer sur "Deploy!"
+   - L'application sera disponible en quelques minutes
 
 ## 📁 Structure du projet
 
 ```
 Pricing/
-├── app.py                      # Application Streamlit
-├── black_scholes_calculator.py # Module de calcul
-├── requirements.txt            # Dépendances Python
-└── README.md                  # Documentation
+├── app.py                          # Application principale Streamlit
+├── black_scholes_calculator.py     # Module de calcul Black & Scholes
+├── requirements.txt                 # Dépendances Python
+├── .streamlit/
+│   └── config.toml                # Configuration Streamlit
+└── README.md                       # Documentation
 ```
 
-## 🔍 Détails techniques
+## 🔧 Configuration
 
-### Calcul du prix d'exercice
-Le prix d'exercice est calculé en utilisant la distribution log-normale :
-```
-K = S * exp((r - 0.5*σ²)T + z*σ*√T)
-```
-Où `z` est le quantile correspondant au centile de couverture.
+Le fichier `.streamlit/config.toml` contient la configuration de l'application :
+- Thème personnalisé
+- Paramètres serveur optimisés
+- Désactivation des statistiques d'usage
 
-### Simulation des scénarios
-- **1000 scénarios** générés par simulation Monte Carlo
-- **Distribution log-normale** pour l'évolution des prix
-- **Seed fixe** pour la reproductibilité
+## 📈 Fonctionnalités avancées
+
+- **Simulation Monte Carlo** pour l'analyse de risque
+- **Calcul des options** (call/put) selon Black & Scholes
+- **Analyse de dispersion** avec centiles et statistiques
+- **Évolution temporelle** du prix avec bandes de confiance
+- **Recommandations contextuelles** selon l'exposition volume
 
 ## 🤝 Contribution
 
-Pour contribuer au projet :
-1. Fork le repository
-2. Créer une branche feature
-3. Implémenter les modifications
-4. Soumettre une pull request
+Les contributions sont les bienvenues ! N'hésitez pas à :
+- Signaler des bugs
+- Proposer des améliorations
+- Ajouter de nouvelles fonctionnalités
 
 ## 📄 Licence
 
-Ce projet est sous licence MIT.
-
-## 📞 Support
-
-Pour toute question ou problème, veuillez ouvrir une issue sur GitHub. 
+Ce projet est sous licence MIT. 
